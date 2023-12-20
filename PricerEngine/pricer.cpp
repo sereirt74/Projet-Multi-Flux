@@ -26,7 +26,7 @@ BlackScholesPricer::BlackScholesPricer(nlohmann::json &jsonParams) {
 
     //mc = new MonteCarlo(mod, opt, rng, fdStep, nSamples);
     //////////////////////
-    
+
 }
 
 

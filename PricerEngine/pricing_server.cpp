@@ -6,7 +6,6 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/health_check_service_interface.h>
 #include <nlohmann/json.hpp>
-
 #include "pnl/pnl_matrix.h"
 #include "pricing.grpc.pb.h"
 #include "pricer.hpp"
