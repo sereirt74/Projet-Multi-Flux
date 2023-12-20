@@ -110,7 +110,18 @@ int main(int argc, char **argv) {
     }
     std::ifstream ifs(argv[1]);
     nlohmann::json jsonParams = nlohmann::json::parse(ifs);
-    RunServer(jsonParams);
+    //RunServer(jsonParams);
+
+    //-----------------
+    BlackScholesPricer *bspricer = new BlackScholesPricer(jsonParams);
+    double price, priceStdDev;
+    PnlVect *delta, *deltaStdDev;
+    bool isMonitoringDate = true;
+    double currentDate = 0.0;
+    PnlMat *past = pnl_mat_create_from_list(1, 4, 100.0, 100.0, 100.0, 100.0);
+    bspricer->priceAndDeltas(past, currentDate, isMonitoringDate, price, priceStdDev, delta, deltaStdDev);
+    
+
 
     return 0;
 }
