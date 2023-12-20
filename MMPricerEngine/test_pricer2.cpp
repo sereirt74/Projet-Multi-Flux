@@ -3,11 +3,12 @@
 
 using namespace std;
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     /**
      * @brief Test du calcul du prix monte carlo de l'option BarrierMFOption (CondionalCall)
-     *
-     * On se base sur les données de math_param_1.json.
+     * 
+     * On se base sur les donnÃ©es de math_param_1.json.
      * On demande veut le prix en t = 0.4, qui se trouve avant la 3e payment date.
      */
 
@@ -38,7 +39,7 @@ int main(int argc, char **argv) {
     double interestRate = 0.01, fdStep = 0.1;
     int nSamples = 10000;
 
-    PnlMat *past = pnl_mat_create(3, 4);
+    PnlMat* past = pnl_mat_create(3, 4);
     pnl_mat_set(past, 0, 0, 8.0);
     pnl_mat_set(past, 0, 1, 8.5);
     pnl_mat_set(past, 0, 2, 9.0);
@@ -68,7 +69,7 @@ int main(int argc, char **argv) {
     pnl_vect_print(deltaStdDev);
 
     pnl_mat_free(&volatility);
-    pnl_mat_free(&past);
+    pnl_mat_free(&past);    
     pnl_vect_free(&paymentDates);
     pnl_vect_free(&strikes);
     pnl_vect_free(&deltas);

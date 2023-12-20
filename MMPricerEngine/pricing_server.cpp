@@ -72,6 +72,7 @@ public:
     }
 
     Status Heartbeat(ServerContext *context, const Empty* input, ReqInfo *output) override {
+        std::cout << "In heartbeat !" << std::endl;
         output->set_domesticinterestrate(pricer.interestRate);
         output->set_relativefinitedifferencestep(pricer.fdStep);
         output->set_samplenb(pricer.nSamples);
@@ -80,7 +81,7 @@ public:
 };
 
 void RunServer(nlohmann::json &jsonParams) {
-    std::string server_address("0.0.0.0:50051");
+    std::string server_address("localhost:50051");
     BlackScholesPricer pricer(jsonParams);
     pricer.print();
     GrpcPricerImpl service(pricer);
@@ -103,10 +104,6 @@ void RunServer(nlohmann::json &jsonParams) {
 }
 
 int main(int argc, char **argv) {
-    std::cout << "-----------------------------------" << std::endl;
-    std::cout << "Pricing server" << std::endl;
-
-
     if (argc != 2) {
         std::cout << "Exactly one argument is required." << std::endl;
         std::cout << "Usage: ./pricing_server math_params.json" << std::endl;

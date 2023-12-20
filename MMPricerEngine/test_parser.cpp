@@ -4,15 +4,17 @@
 
 using namespace std;
 
-int main(int argc, char **argv) {
+int
+main(int argc, char** argv)
+{
     double T, r, strike;
     PnlVect *spot, *sigma, *divid;
     string type;
     int size;
     size_t n_samples;
 
-    char *infile = argv[1];
-    Param *P = new Parser(infile);
+    char* infile = argv[1];
+    Param* P = new Parser(infile);
 
     P->extract("option type", type);
     P->extract("maturity", T);

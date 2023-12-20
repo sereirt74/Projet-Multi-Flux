@@ -102,7 +102,6 @@ void BlackScholesPricer::priceAndDeltas(const PnlMat *past, double currentDate, 
         delta_d = pnl_vect_get(deltas, d);
         pnl_vect_set(deltas, d, delta_d * espDelta / st);
         // fact = pnl_vect_get(deltasStdDev, d) * (esp2Delta / (st * st)) - pnl_pow_i(delta_d / (2 * fdStep * nSamples * st), 2);
-
         double base = delta_d / (2 * fdStep * nSamples * st);
         fact = pnl_vect_get(deltasStdDev, d) * (esp2Delta / (st * st)) - std::pow(base, 2.0);
 

@@ -3,13 +3,14 @@
 
 using namespace std;
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
     /**
-     * @brief Test du calcul du prix monte carlo contre le prix théorique
+     * @brief Test du calcul du prix monte carlo contre le prix thÃ©orique 
      * de l'option BarrierMFOption (CondionalCall)
-     *
+     * 
      * On se base sur un seul actif S1 avec une unique payment Date en T = 1, et on veut le prix en 0.
-     * Cette option devient équivalente à une option vanille.
+     * Cette option devient Ã©quivalente Ã  une option vanille.
      */
 
     PnlMat *volatility = pnl_mat_create(1, 1);
@@ -20,17 +21,18 @@ int main(int argc, char **argv) {
     pnl_vect_set(paymentDates, 0, 1.0);
     pnl_vect_set(strikes, 0, 10.);
 
-    PnlMat *past = pnl_mat_create(1, 1);
+    PnlMat* past = pnl_mat_create(1, 1);
     pnl_mat_set_all(past, 8.0);
     double currentDate = 0.0;
     bool isMonitoringDate = false;
     double price, priceStdDev;
     PnlVect *deltas, *deltaStdDev;
     BlackScholesPricer pricer(volatility, paymentDates, strikes, interestRate, fdStep, nSamples);
+    
 
     // Prix attendu d'une option vanille
     double expectedPrice, expectedDeltas;
-    int i = pnl_cf_call_bs(8.0, 10., 1.0, interestRate, 0.0, 0.3, &expectedPrice, &expectedDeltas);
+    int i = pnl_cf_call_bs (8.0, 10., 1.0, interestRate, 0.0, 0.3, &expectedPrice, &expectedDeltas);
 
     // Prix monte-carlo de l'option vanille
     pricer.priceAndDeltas(past, currentDate, isMonitoringDate, price, priceStdDev, deltas, deltaStdDev);
@@ -39,13 +41,14 @@ int main(int argc, char **argv) {
     cout << "Deltas MonteCarlo(" << currentDate << ") :" << endl;
     pnl_vect_print(deltas);
 
+
     cout << endl;
     cout << "expectedPrice(" << currentDate << ") = " << expectedPrice << endl;
     cout << "expectedDeltas(" << currentDate << ") :" << endl;
     cout << expectedDeltas << endl;
 
     pnl_mat_free(&volatility);
-    pnl_mat_free(&past);
+    pnl_mat_free(&past);    
     pnl_vect_free(&paymentDates);
     pnl_vect_free(&strikes);
     pnl_vect_free(&deltas);

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.5.1)
 
 project(PricerEngine C CXX)
 
@@ -8,12 +8,10 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
 endif ()
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 # Find Protobuf installation
-# Must use the CONFIG mode
-set(CMAKE_FIND_PACKAGE_PREFER_CONFIG ON)
+# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
+set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf REQUIRED)
-
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
@@ -76,7 +74,7 @@ target_link_libraries(pricer_grpc_proto
     ${_PROTOBUF_LIBPROTOBUF}
 )
 
-add_executable(pricing_server pricing_server.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp )
+add_executable(pricing_server pricing_server.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp)
 target_link_libraries(pricing_server
     pricer_grpc_proto
     ${_REFLECTION}
@@ -115,4 +113,5 @@ target_link_libraries(test_json_reader
     nlohmann_json::nlohmann_json
 )
 pnl_add_postbuild(test_json_reader)
+
 
