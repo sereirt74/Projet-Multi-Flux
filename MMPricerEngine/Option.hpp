@@ -19,4 +19,5 @@ class Option
      * @return phi(trajectoire)
      */
     virtual double payoff(const PnlMat* path) = 0;
+
 };

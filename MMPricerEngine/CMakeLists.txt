@@ -74,7 +74,7 @@ target_link_libraries(pricer_grpc_proto
     ${_PROTOBUF_LIBPROTOBUF}
 )
 
-add_executable(pricing_server pricing_server.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp)
+add_executable(pricing_server pricing_server.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp CallVanille.cpp)
 target_link_libraries(pricing_server
     pricer_grpc_proto
     ${_REFLECTION}
@@ -85,7 +85,7 @@ target_link_libraries(pricing_server
 )
 pnl_add_postbuild(pricing_server)
 
-add_executable(pricing_test test_pricer.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp)
+add_executable(pricing_test test_pricer.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp CallVanille.cpp)
 target_link_libraries(pricing_test
     pricer_grpc_proto
     ${_REFLECTION}
@@ -96,7 +96,7 @@ target_link_libraries(pricing_test
 )
 pnl_add_postbuild(pricing_test)
 
-add_executable(pricing_test2 test_pricer2.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp)
+add_executable(pricing_test2 test_pricer2.cpp pricer.cpp json_reader.cpp BSModel.cpp BarrierMFOption.cpp CallVanille.cpp)
 target_link_libraries(pricing_test2
     pricer_grpc_proto
     ${_REFLECTION}
