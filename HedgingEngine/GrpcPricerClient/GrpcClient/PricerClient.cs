@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TimeHandler;
 
 namespace HedgingEngine.GrpcClient
 {
@@ -38,6 +39,8 @@ namespace HedgingEngine.GrpcClient
           
         }
 
+  
+
 
         public ReqInfo ComputeHeartbeat()
         {
@@ -48,7 +51,7 @@ namespace HedgingEngine.GrpcClient
 
 
 
-        private static PricingInput fillPricingInput(DataFeed[] past, bool monitoringDateReached, double time)
+        private PricingInput fillPricingInput(DataFeed[] past, bool monitoringDateReached, double time)
         {
             PricingInput input = new PricingInput();
 
@@ -57,7 +60,6 @@ namespace HedgingEngine.GrpcClient
                 if (testParameters.PayoffDescription.PaymentDates.Contains(dataFeed.Date)) 
                 {
                     PastLines pastLine = new PastLines();
-
                     foreach (double prix in dataFeed.SpotList.Values.ToArray())
                     {
                         pastLine.Value.Add(prix);
@@ -71,14 +73,10 @@ namespace HedgingEngine.GrpcClient
             return input;
         }
 
-        public List<DataFeed> GetPast()
-        {
-
         }
 
 
 
 
 
-    }
-}
+ }

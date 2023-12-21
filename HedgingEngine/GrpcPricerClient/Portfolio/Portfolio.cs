@@ -14,9 +14,8 @@ namespace HedgingEngine.Portfolio
         public double[] Deltas { get; set; }
         
         
-        public Portfolio(double cash, double portfolioValue, int nbAssets)
+        public Portfolio(double portfolioValue, int nbAssets)
         {
-            Cash = cash;
             PortfolioValue = portfolioValue;
             Deltas = new double[nbAssets];
         }

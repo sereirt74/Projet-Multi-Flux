@@ -1,6 +1,8 @@
 ﻿using HedgingEngine.GrpcClient;
+using HedgingEngine.RebalancingOracle;
 using MarketData;
 using ParameterInfo;
+using ParameterInfo.RebalancingOracleDescriptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,63 +14,82 @@ namespace HedgingEngine.Hedger
 {
     public class Hedger
     {
-        public TestParameters testParameters;
         public PricerClient PricerClient;
-        public List<double> Prices;
-        public List<double> PricesStdDev;
-        public List<double> Deltas;
-        public List<double> DeltasStdDev;
-        public List<DateTime> Dates;
-        public List<double> PortfolioValues; 
-        public DataFeed[] Past;
+        public List<OutputData> OutputDataList;
         public Portfolio.Portfolio HedgingPortfolio;
+        public IRebalacingOracle rebalacingOracle;
 
-
-
-
-
-        public Hedger(DataFeed firstDataFeed, TestParameters testParameters, string serverAddress = "http://localhost:50051")
+        public Hedger(DataFeed[] dataFeeds, PricerClient pricer)
         {
-            this.testParameters = testParameters;
-            PricerClient = new PricerClient(testParameters, serverAddress);
-
-            InitializePortfolio();
+            PricerClient = pricer;
+            OutputDataList = new List<OutputData>();
+            InitializeRebalancingOracle();
+            InitializePortfolio(dataFeeds);
         }
 
 
-        private void InitializePortfolio(List<DataFeed> past)
+        private void InitializePortfolio(DataFeed[] past)
         {
-            DateTime currentDate = past[past.Count - 1].Date;
-            bool monitoringDateReached = testParameters.PayoffDescription.PaymentDates.Contains(currentDate);
-            MathDateConverter mathDateConverter = new MathDateConverter(testParameters.NumberOfDaysInOneYear);
-            double time = mathDateConverter.ConvertToMathDistance(testParameters.PayoffDescription.CreationDate, currentDate);
-            
-            PricerClient.ComputePricesAndDeltas(past.ToArray(), monitoringDateReached, time);
+            TestParameters testParams = PricerClient.testParameters;
+            DateTime currentDate = past[past.Length - 1].Date;
+            bool monitoringDateReached = testParams.PayoffDescription.PaymentDates.Contains(currentDate);
+            MathDateConverter mathDateConverter = new MathDateConverter(testParams.NumberOfDaysInOneYear);
+            double time = mathDateConverter.ConvertToMathDistance(testParams.PayoffDescription.CreationDate, currentDate);
+
+            PricerClient.ComputePricesAndDeltas(past, monitoringDateReached, time);
             int nbAssets = PricerClient.deltas.Length;
-            HedgingPortfolio = new Portfolio.Portfolio(0, 0, nbAssets);
-
+            double initPrice = PricerClient.price;
+            HedgingPortfolio = new Portfolio.Portfolio(initPrice, nbAssets);
+            DataFeed initDataFeed = past[0];
+            HedgingPortfolio.updateComposition(PricerClient.deltas.ToArray(), initDataFeed);
+            fillOutputDataList(currentDate);
 
         }
 
-       
-        
-
-        
-
-        public void Hedge(DataFeed[] dataFeeds)
+        private void InitializeRebalancingOracle()
         {
+            IRebalancingOracleDescription description = PricerClient.testParameters.RebalancingOracleDescription;
+            rebalacingOracle = new FixedTimesOracle(description);
+        }
 
-            foreach (DataFeed dataFeed in dataFeeds)
+
+        public void Hedge(List<DataFeed> dataFeeds)
+        {
+            TestParameters testParams = PricerClient.testParameters;
+            MathDateConverter mathDateConverter = new MathDateConverter(testParams.NumberOfDaysInOneYear);
+            double riskFreeRate = testParams.AssetDescription.CurrencyRates[testParams.AssetDescription.DomesticCurrencyId];
+            DateTime OldDate = dataFeeds[0].Date;
+            
+            foreach (DataFeed dataFeed in dataFeeds.Skip(1))
             {
-                MathDateConverter mathDateConverter = new MathDateConverter(testParameters.NumberOfDaysInOneYear);
-                double riskFreeRate = mathDateConverter.ConvertToMathDistance(dataFeed.Date, testParameters.PayoffDescription.PaymentDates.ElementAtOrDefault(0));
+                DateTime currentDate = dataFeed.Date;
+                double time = mathDateConverter.ConvertToMathDistance(OldDate, currentDate);
+                bool monitoringDateReached = testParams.PayoffDescription.PaymentDates.Contains(currentDate);
+                List<DataFeed> newPast = new List<DataFeed>(dataFeeds);
+                newPast.Add(dataFeed);
+                PricerClient.ComputePricesAndDeltas(newPast.ToArray(), monitoringDateReached, time);
+                HedgingPortfolio.UpdatePortfolioValue(dataFeed, time, riskFreeRate);
+                OldDate = currentDate;
+                if (rebalacingOracle.rebalancingDate(currentDate))
+                {
+                    HedgingPortfolio.updateComposition(PricerClient.deltas, dataFeed);
+                    fillOutputDataList(currentDate);
+                }
+            }
+        }
 
-                PricerClient.ComputePricesAndDeltas(Past, riskFreeRate, riskFreeRate);
+        private void fillOutputDataList(DateTime date)
+        {
+            OutputDataList.Add(new OutputData()
+            {
+                Date = date,
+                Deltas = PricerClient.deltas,
+                DeltasStdDev = PricerClient.deltasStdDev,
+                Price = PricerClient.price,
+                PriceStdDev = PricerClient.priceStdDev,
+                Value = HedgingPortfolio.PortfolioValue
+            }) ;
 
         }
     }
-
-
-
-
 }
